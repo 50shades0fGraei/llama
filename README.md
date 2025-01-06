@@ -1,5 +1,140 @@
-## **Note of deprecation**
+Here are Fibonacci sequence implementations in Python:
 
+# Recursive Implementation
+```
+def fibonacci(n):
+    """
+    Calculate the nth Fibonacci number recursively.
+    
+    Args:
+        n (int): Position of the Fibonacci number.
+    
+    Returns:
+        int: The nth Fibonacci number.
+    """
+    if n <= 1:
+        return n
+    return fibonacci(n-1) + fibonacci(n-2)
+``)
+
+## Iterative Implementation
+```python
+def fibonacci(n):
+    """
+    Calculate the nth Fibonacci number iteratively.
+    
+    Args:
+        n (int): Position of the Fibonacci number.
+    
+    Returns:
+        int: The nth Fibonacci number.
+    """
+    if n <= 1:
+        return n
+    
+    fib_prev = 0
+    fib_curr = 1
+    
+    for _ in range(2, n+1):
+        fib_next = fib_prev + fib_curr
+        fib_prev = fib_curr
+        fib_curr = fib_next
+    
+    return fib_curr
+```
+
+# Memoized Implementation (Efficient)
+```
+def fibonacci(n, memo={}):
+    """
+    Calculate the nth Fibonacci number with memoization.
+    
+    Args:
+        n (int): Position of the Fibonacci number.
+        memo (dict): Dictionary storing previously calculated Fibonacci numbers.
+    
+    Returns:
+        int: The nth Fibonacci number.
+    """
+    if n <= 1:
+        return n
+    elif n in memo:
+        return memo[n]
+    else:
+        result = fibonacci(n-1, memo) + fibonacci(n-2, memo)
+        memo[n] = result
+        return result
+```
+
+# Example Usage
+```
+print(fibonacci(10))  # Output: 55
+```
+Here's a Pytest framework to test your AI model's conversational capabilities:
+
+# Test Scenario: Multi-Sentence Dialogue and Opinion Formation
+```
+import pytest
+from your_model import AIModel
+
+@pytest.fixture
+def model():
+    return AIModel()
+
+@pytest.fixture
+def conversation_scenarios():
+    return [
+        {
+            "model_question": "What are your thoughts on AI?",
+            "user_response": "AI has revolutionized healthcare and finance. However, concerns about job displacement and bias persist.",
+            "expected_opinion_keywords": ["healthcare", "finance", "bias"],
+            "expected_question_keywords": ["regulation", "ethics"]
+        },
+        # Add more scenarios
+    ]
+
+def test_conversational_opinion_formation(model, conversation_scenarios):
+    for scenario in conversation_scenarios:
+        # Model asks question
+        assert model.ask_question() == scenario["model_question"]
+        
+        # User responds
+        user_response = scenario["user_response"]
+        
+        # Model provides opinion and follow-up question
+        opinion, follow_up_question = model.respond(user_response)
+        
+        # Assert opinion contains expected keywords
+        assert all(keyword in opinion for keyword in scenario["expected_opinion_keywords"])
+        
+        # Assert follow-up question contains expected keywords
+        assert any(keyword in follow_up_question for keyword in scenario["expected_question_keywords"])
+```
+
+# AI Model Requirements
+1. `ask_question()`: Returns the model's initial question.
+2. `respond(user_response)`: Takes user input, returns opinion and follow-up question.
+3. Update `your_model.py` to implement these methods.
+
+# Example AI Model Implementation
+```
+class AIModel:
+    def ask_question(self):
+        return "What are your thoughts on AI?"
+    
+    def respond(self, user_response):
+        # Tokenize user response
+        tokens = user_response.split(".")
+        
+        # Form opinion based on knowledge graph and user input
+        opinion = "AI impacts " + ", ".join([token.split()[0] for token in tokens])
+        
+        # Generate follow-up question
+        follow_up_question = "How do you think AI regulation should address these concerns?"
+        
+        return opinion, follow_up_question
+
+## **Note of deprecation**
 Thank you for developing with Llama models. As part of the Llama 3.1 release, we’ve consolidated GitHub repos and added some additional repos as we’ve expanded Llama’s functionality into being an e2e Llama Stack. Please use the following repos going forward:
 - [llama-models](https://github.com/meta-llama/llama-models) - Central repo for the foundation models including basic utilities, model cards, license and use policies
 - [PurpleLlama](https://github.com/meta-llama/PurpleLlama) - Key component of Llama Stack focusing on safety risks and inference time mitigations 
