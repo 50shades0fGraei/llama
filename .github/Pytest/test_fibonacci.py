@@ -43,7 +43,5 @@ def fibonacci_memoized(n: int, memo: dict = {}) -> int:
 
 Run pytest:
 
-```
 bash
 pytest .github/Pytest
-```
