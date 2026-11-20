@@ -28,6 +28,8 @@ Python wrapper documented in [`EMOTIONAL_AI.md`](../EMOTIONAL_AI.md).
   sponsored suggestions, separate from assistant answers.
 - [`CHAT_ADS_PROPOSAL.md`](CHAT_ADS_PROPOSAL.md): privacy-first product, funding,
   and pilot proposal.
+- [`MAI-I_PRODUCT_PROPOSAL.md`](MAI-I_PRODUCT_PROPOSAL.md): a staged social,
+  dating-practice, and virtual-café concept with privacy and safety boundaries.
 - [`RESPONSE_REVIEW.md`](RESPONSE_REVIEW.md): an optional, bounded second-pass
   quality review.
 - [`EVALUATION.md`](EVALUATION.md): metrics and a fair comparison plan.

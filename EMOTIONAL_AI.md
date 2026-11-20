@@ -54,6 +54,10 @@ Optional, separately configured persistence:
   It does not target mood or demographics or modify assistant output. See
   [`emotional-ai/CHAT_ADS.md`](emotional-ai/CHAT_ADS.md) and the
   [`Chat Ads project proposal`](emotional-ai/CHAT_ADS_PROPOSAL.md).
+- The broader MAI-I social/dating/virtual-café concept is documented as a
+  staged proposal only; it does not scan profiles, impersonate people, or predict
+  dating success. See
+  [`emotional-ai/MAI-I_PRODUCT_PROPOSAL.md`](emotional-ai/MAI-I_PRODUCT_PROPOSAL.md).
 
 The raw user message is not stored by the reminder or quality ledgers. These
 SQLite files are local but not encrypted by this package; use a separate memory
