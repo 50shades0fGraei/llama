@@ -1,8 +1,39 @@
 from typing import List, Literal, Optional, Protocol, TypedDict
 
-from .decision import SupportAssessment, assess_customer_message
+from .decision import (
+    SupportDecision,
+    assess_customer_message,
+    decide_support_action,
+)
 
 Role = Literal["system", "user", "assistant"]
+ResponseStyle = Literal["neutral", "warm", "direct"]
+SupportTask = Literal["general", "troubleshooting", "policy", "recommendation"]
+
+_RESPONSE_STYLE_GUIDANCE = {
+    "neutral": "Use a neutral, professional tone.",
+    "warm": (
+        "Use a warm, calm tone while staying honest; do not pretend to feel "
+        "emotions or mirror distress."
+    ),
+    "direct": "Use a direct, concise tone without unnecessary pleasantries.",
+}
+_TASK_GUIDANCE = {
+    "general": "",
+    "troubleshooting": (
+        "Troubleshooting task: offer one safe, reversible step at a time. Ask for "
+        "only details needed to identify the issue and do not claim a diagnosis."
+    ),
+    "policy": (
+        "Policy task: rely on the supplied, current policy. Distinguish what is "
+        "known from what is not documented; do not invent exceptions."
+    ),
+    "recommendation": (
+        "Recommendation task: use criteria the customer explicitly gives, ask "
+        "permission before collecting optional preferences, and show relevant "
+        "trade-offs without steering toward a hidden outcome."
+    ),
+}
 
 
 class Message(TypedDict):
@@ -49,11 +80,15 @@ class CustomerServiceAssistant:
         self,
         generator: ChatGenerator,
         system_prompt: str = _BASE_SERVICE_GUIDANCE,
+        response_style: Optional[ResponseStyle] = None,
     ) -> None:
         if not system_prompt.strip():
             raise ValueError("system_prompt must not be empty")
+        if response_style is not None and response_style not in _RESPONSE_STYLE_GUIDANCE:
+            raise ValueError("response_style must be neutral, warm, direct, or None")
         self._generator = generator
         self._system_prompt = system_prompt.strip()
+        self._response_style = response_style
 
     def chat_completion(
         self,
@@ -62,11 +97,18 @@ class CustomerServiceAssistant:
         top_p: float = 0.9,
         max_gen_len: Optional[int] = None,
         logprobs: bool = False,
+        task: SupportTask = "general",
     ) -> List[ChatPrediction]:
         """Generate support replies without changing the caller's dialog objects."""
         if not dialogs:
             raise ValueError("at least one dialog is required")
-        prepared_dialogs = [self._prepare_dialog(dialog) for dialog in dialogs]
+        if task not in _TASK_GUIDANCE:
+            raise ValueError(
+                "task must be general, troubleshooting, policy, or recommendation"
+            )
+        prepared_dialogs = [
+            self._prepare_dialog(dialog, task) for dialog in dialogs
+        ]
         return self._generator.chat_completion(
             prepared_dialogs,
             temperature=temperature,
@@ -75,16 +117,25 @@ class CustomerServiceAssistant:
             logprobs=logprobs,
         )
 
-    def _prepare_dialog(self, dialog: Dialog) -> Dialog:
+    def _prepare_dialog(self, dialog: Dialog, task: SupportTask) -> Dialog:
         if not dialog:
             raise ValueError("each dialog must contain at least one message")
         if dialog[-1]["role"] != "user":
             raise ValueError("each dialog must end with a user message")
 
         assessment = assess_customer_message(dialog[-1]["content"])
-        system_content = self._system_prompt + "\n" + self._assessment_guidance(
-            assessment
-        )
+        decision = decide_support_action(assessment)
+        instructions = [
+            self._system_prompt,
+            self._decision_guidance(decision),
+        ]
+        if _TASK_GUIDANCE[task]:
+            instructions.append(_TASK_GUIDANCE[task])
+        if self._response_style is not None:
+            instructions.append(
+                _RESPONSE_STYLE_GUIDANCE[self._response_style]
+            )
+        system_content = "\n".join(instructions)
 
         copied_dialog: Dialog = [
             {"role": message["role"], "content": message["content"]}
@@ -101,27 +152,27 @@ class CustomerServiceAssistant:
         return copied_dialog
 
     @staticmethod
-    def _assessment_guidance(assessment: SupportAssessment) -> str:
+    def _decision_guidance(decision: SupportDecision) -> str:
         guidance = []
-        if assessment.acknowledgement_recommended:
+        if decision.acknowledge:
             guidance.append(
-                "Acknowledge the stated service problem or feeling briefly, "
-                "without guessing beyond the customer's words."
+                "Briefly acknowledge the stated service problem or feeling without "
+                "guessing beyond the customer's words."
             )
-        if assessment.human_handoff_requested:
+        if decision.route == "urgent_human_review":
             guidance.append(
-                "The customer explicitly requested a person. Explain the available "
-                "human-support next step, but do not claim a transfer was completed."
+                "Support route: clarify the immediate need and offer timely human "
+                "review. Treat urgency wording as a cue, not proof of an emergency; "
+                "do not claim a transfer or promise an outcome."
             )
-        if assessment.urgent_language:
+        elif decision.route == "human_support":
             guidance.append(
-                "The message contains urgency-related wording. Clarify the immediate "
-                "need and offer a timely human-support option without claiming a "
-                "transfer or promising an outcome."
+                "Support route: the customer explicitly requested a person. Explain "
+                "the available human-support next step without claiming a transfer."
             )
-        if not guidance:
+        else:
             guidance.append(
-                "No specific support cue was detected; answer the customer's request "
-                "normally and ask a focused clarifying question if needed."
+                "Support route: answer the customer's stated request. Ask a neutral "
+                "clarifying question only if needed."
             )
-        return "Support guidance: " + " ".join(guidance)
+        return " ".join(guidance)

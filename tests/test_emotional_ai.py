@@ -3,6 +3,7 @@ import unittest
 from emotional_ai import (
     CustomerServiceAssistant,
     assess_customer_message,
+    decide_support_action,
     handoff_metrics,
     rank_user_stated_interests,
 )
@@ -64,6 +65,15 @@ class DecisionTests(unittest.TestCase):
         with self.assertRaises(TypeError):
             assess_customer_message(None)
 
+    def test_decides_route_after_assessment(self):
+        urgent = assess_customer_message("There is an unauthorized charge.")
+        routine = assess_customer_message("What are your return hours?")
+
+        self.assertEqual(
+            decide_support_action(urgent).route, "urgent_human_review"
+        )
+        self.assertEqual(decide_support_action(routine).route, "answer")
+
 
 class AssistantTests(unittest.TestCase):
     def test_adds_context_without_mutating_dialog_and_forwards_options(self):
@@ -84,7 +94,7 @@ class AssistantTests(unittest.TestCase):
         self.assertEqual(result[0]["generation"]["content"], "I can help.")
         system_message = generator.dialogs[0][0]["content"]
         self.assertIn("Follow the store policy.", system_message)
-        self.assertIn("Acknowledge the stated service problem", system_message)
+        self.assertIn("Briefly acknowledge the stated service problem", system_message)
         self.assertIn("never infer or persist an interest profile", system_message)
 
     def test_requests_human_next_step_without_claiming_transfer(self):
@@ -97,7 +107,7 @@ class AssistantTests(unittest.TestCase):
 
         system_message = generator.dialogs[0][0]["content"]
         self.assertIn("explicitly requested a person", system_message)
-        self.assertIn("do not claim a transfer was completed", system_message)
+        self.assertIn("without claiming a transfer", system_message)
 
     def test_rejects_invalid_dialogs(self):
         assistant = CustomerServiceAssistant(FakeGenerator())
@@ -114,6 +124,31 @@ class AssistantTests(unittest.TestCase):
     def test_rejects_empty_system_prompt(self):
         with self.assertRaises(ValueError):
             CustomerServiceAssistant(FakeGenerator(), system_prompt=" ")
+
+    def test_applies_only_the_explicit_response_style_preference(self):
+        generator = FakeGenerator()
+        assistant = CustomerServiceAssistant(generator, response_style="warm")
+        assistant.chat_completion(
+            [[{"role": "user", "content": "Which plan should I choose?"}]],
+            task="recommendation",
+        )
+
+        system_message = generator.dialogs[0][0]["content"]
+        self.assertIn("Use a warm, calm tone", system_message)
+        self.assertIn("Support route: answer", system_message)
+        self.assertIn("show relevant trade-offs", system_message)
+
+    def test_rejects_unknown_response_style(self):
+        with self.assertRaises(ValueError):
+            CustomerServiceAssistant(FakeGenerator(), response_style="persuasive")
+
+    def test_rejects_unknown_task(self):
+        assistant = CustomerServiceAssistant(FakeGenerator())
+
+        with self.assertRaises(ValueError):
+            assistant.chat_completion(
+                [[{"role": "user", "content": "Help."}]], task="influence"
+            )
 
 
 class MetricsTests(unittest.TestCase):

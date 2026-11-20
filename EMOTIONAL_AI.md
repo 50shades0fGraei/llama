@@ -8,12 +8,19 @@ diagnose a customer's emotional state, or perform account actions.
 For consent-based ranking of preferences the customer explicitly provides, see
 [`emotional-ai/INTEREST_HIERARCHY.md`](emotional-ai/INTEREST_HIERARCHY.md).
 
+Assessment and support routing happen before the wrapped generator tokenizes the
+augmented dialog. An optional `response_style` (`"neutral"`, `"warm"`, or
+`"direct"`) is a caller-provided preference; it is not inferred from emotion.
+Choose `task="general"`, `"troubleshooting"`, `"policy"`, or `"recommendation"`
+explicitly when calling `CustomerServiceAssistant.chat_completion`.
+
 ```python
 from emotional_ai import CustomerServiceAssistant
 
 support = CustomerServiceAssistant(generator)  # an existing Llama instance
 reply = support.chat_completion(
-    [[{"role": "user", "content": "I need to speak with a person."}]]
+    [[{"role": "user", "content": "I need to speak with a person."}]],
+    task="general",
 )
 ```
 

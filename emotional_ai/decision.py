@@ -1,6 +1,6 @@
 import re
 from dataclasses import dataclass
-from typing import Tuple
+from typing import Literal, Tuple
 
 _HUMAN_REQUEST = re.compile(
     r"\b(?:i want|i need|please|can you|could you|let me|connect me|transfer me|"
@@ -42,6 +42,23 @@ class SupportAssessment:
     signals: Tuple[str, ...]
 
 
+SupportRoute = Literal[
+    "answer",
+    "acknowledge_and_answer",
+    "human_support",
+    "urgent_human_review",
+]
+
+
+@dataclass(frozen=True)
+class SupportDecision:
+    route: SupportRoute
+    offer_human_support: bool
+    acknowledge: bool
+    clarify_urgency: bool
+    reasons: Tuple[str, ...]
+
+
 def assess_customer_message(message: str) -> SupportAssessment:
     """Identify a small set of explicit wording cues without inferring traits."""
     if not isinstance(message, str):
@@ -71,4 +88,24 @@ def assess_customer_message(message: str) -> SupportAssessment:
         human_handoff_recommended=human_request or urgent_language,
         urgent_language=urgent_language,
         signals=tuple(signals),
+    )
+
+
+def decide_support_action(assessment: SupportAssessment) -> SupportDecision:
+    """Choose a support route from explicit wording cues only."""
+    if assessment.urgent_language:
+        route: SupportRoute = "urgent_human_review"
+    elif assessment.human_handoff_requested:
+        route = "human_support"
+    elif assessment.acknowledgement_recommended:
+        route = "acknowledge_and_answer"
+    else:
+        route = "answer"
+
+    return SupportDecision(
+        route=route,
+        offer_human_support=assessment.human_handoff_recommended,
+        acknowledge=assessment.acknowledgement_recommended,
+        clarify_urgency=assessment.urgent_language,
+        reasons=assessment.signals,
     )
