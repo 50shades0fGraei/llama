@@ -1,4 +1,5 @@
 from .assistant import CustomerServiceAssistant
+from .ads import ChatAdCampaign, SponsoredSuggestion, select_contextual_ad
 from .decision import (
     SupportAssessment,
     SupportDecision,
@@ -21,6 +22,7 @@ from .review import ModelResponseReviewer, ResponseReviewer
 
 __all__ = [
     "CustomerServiceAssistant",
+    "ChatAdCampaign",
     "Evidence",
     "EvidenceRetriever",
     "CORE_GOAL_HIERARCHY",
@@ -34,6 +36,7 @@ __all__ = [
     "ResponseReviewer",
     "SolutionAssessment",
     "SolutionOption",
+    "SponsoredSuggestion",
     "StakeholderAlignment",
     "Reminder",
     "SupportAssessment",
@@ -44,4 +47,5 @@ __all__ = [
     "handoff_metrics",
     "rank_goal_priorities",
     "rank_user_stated_interests",
+    "select_contextual_ad",
 ]

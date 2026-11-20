@@ -49,6 +49,10 @@ Optional, separately configured persistence:
   equally after hard safeguards. It blocks declared safeguard violations and
   routes high/critical risk options to human review; it never executes an action.
   See [`emotional-ai/SOLUTION_PROTOCOL.md`](emotional-ai/SOLUTION_PROTOCOL.md).
+- `select_contextual_ad` is a separate, opt-in workflow that returns a
+  clearly labeled sponsored card based on the current message's general topic.
+  It does not target mood or demographics or modify assistant output. See
+  [`emotional-ai/CHAT_ADS.md`](emotional-ai/CHAT_ADS.md).
 
 The raw user message is not stored by the reminder or quality ledgers. These
 SQLite files are local but not encrypted by this package; use a separate memory

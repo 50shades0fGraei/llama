@@ -7,6 +7,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 from emotional_ai import (
+    ChatAdCampaign,
     CustomerServiceAssistant,
     Evidence,
     GoalPriority,
@@ -21,6 +22,7 @@ from emotional_ai import (
     handoff_metrics,
     rank_goal_priorities,
     rank_user_stated_interests,
+    select_contextual_ad,
 )
 
 
@@ -126,6 +128,71 @@ class DecisionTests(unittest.TestCase):
             decide_support_action(urgent).route, "urgent_human_review"
         )
         self.assertEqual(decide_support_action(routine).route, "answer")
+
+
+class ChatAdsTests(unittest.TestCase):
+    def setUp(self):
+        self.campaign = ChatAdCampaign(
+            campaign_id="books-1",
+            advertiser="Example Books",
+            category="books",
+            text="Explore the new arrivals at Example Books.",
+            url="https://example.com/books",
+        )
+
+    def test_ads_are_off_without_consent_and_separate_from_assistant_text(self):
+        self.assertIsNone(
+            select_contextual_ad(
+                "Can you recommend a novel?",
+                [self.campaign],
+                consented=False,
+            )
+        )
+
+        suggestion = select_contextual_ad(
+            "Can you recommend a novel?",
+            [self.campaign],
+            consented=True,
+        )
+
+        self.assertEqual(suggestion.label, "Sponsored")
+        self.assertEqual(suggestion.advertiser, "Example Books")
+        self.assertEqual(suggestion.url, "https://example.com/books")
+
+    def test_matching_uses_current_topic_not_mood_or_demographics(self):
+        self.assertIsNone(
+            select_contextual_ad(
+                "I'm angry and frustrated.",
+                [self.campaign],
+                consented=True,
+            )
+        )
+
+    def test_rejects_sensitive_categories_and_non_https_destinations(self):
+        with self.assertRaises(ValueError):
+            select_contextual_ad(
+                "health advice",
+                [
+                    ChatAdCampaign(
+                        "health-1", "Example", "health", "Ad copy"
+                    )
+                ],
+                consented=True,
+            )
+        with self.assertRaises(ValueError):
+            select_contextual_ad(
+                "novel",
+                [
+                    ChatAdCampaign(
+                        "books-2",
+                        "Example",
+                        "books",
+                        "Ad copy",
+                        "javascript:alert(1)",
+                    )
+                ],
+                consented=True,
+            )
 
 
 class AssistantTests(unittest.TestCase):
