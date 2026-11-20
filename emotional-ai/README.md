@@ -22,6 +22,8 @@ Python wrapper documented in [`EMOTIONAL_AI.md`](../EMOTIONAL_AI.md).
   adaptive priorities.
 - [`SOLUTION_PROTOCOL.md`](SOLUTION_PROTOCOL.md): an evidence- and risk-aware
   solution review across parallel stakeholder goals.
+- [`BIAS_AND_TONE.md`](BIAS_AND_TONE.md): fair handling of opinion stalemates and
+  transparent, non-manipulative de-escalation.
 - [`RESPONSE_REVIEW.md`](RESPONSE_REVIEW.md): an optional, bounded second-pass
   quality review.
 - [`EVALUATION.md`](EVALUATION.md): metrics and a fair comparison plan.

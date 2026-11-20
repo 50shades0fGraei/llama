@@ -102,6 +102,18 @@ class DecisionTests(unittest.TestCase):
         self.assertFalse(assessment.human_handoff_requested)
         self.assertTrue(assessment.human_handoff_recommended)
 
+    def test_anger_alone_does_not_trigger_urgent_or_crisis_routing(self):
+        assessment = assess_customer_message(
+            "I'm angry that this still isn't working!"
+        )
+
+        self.assertTrue(assessment.acknowledgement_recommended)
+        self.assertFalse(assessment.urgent_language)
+        self.assertFalse(assessment.human_handoff_recommended)
+        self.assertEqual(
+            decide_support_action(assessment).route, "acknowledge_and_answer"
+        )
+
     def test_rejects_non_string_messages(self):
         with self.assertRaises(TypeError):
             assess_customer_message(None)
@@ -197,6 +209,24 @@ class AssistantTests(unittest.TestCase):
         self.assertIn('"goal": "include alternatives", "weight": 80', system_message)
         self.assertIn("preferences, not evidence or policy", system_message)
         self.assertIn("Generated opinions and review results must not change", system_message)
+
+    def test_opinion_task_handles_bias_stalemates_without_false_crisis_assumptions(self):
+        generator = FakeGenerator()
+        assistant = CustomerServiceAssistant(generator)
+
+        assistant.chat_completion(
+            [[{"role": "user", "content": "I'm angry that we disagree."}]],
+            task="opinion",
+        )
+
+        system_message = generator.dialogs[0][0]["content"]
+        self.assertIn("weight claims by evidence", system_message)
+        self.assertIn("do not force agreement", system_message)
+        self.assertIn("Do not infer self-harm risk", system_message)
+        self.assertIn(
+            "Do not introduce a crisis hotline for an ordinary complaint",
+            system_message,
+        )
 
     def test_rejects_unknown_response_style(self):
         with self.assertRaises(ValueError):

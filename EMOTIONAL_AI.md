@@ -36,6 +36,11 @@ Optional, separately configured persistence:
   It is not a continuous background process and does not create personal beliefs
   or ideology. See
   [`emotional-ai/RESPONSE_REVIEW.md`](emotional-ai/RESPONSE_REVIEW.md).
+- Opinion tasks separate factual claims from value judgments and handle
+  unresolved disagreements by surfacing trade-offs rather than forcing consensus.
+  Anger alone does not imply crisis or trigger hotline language; explicit safety
+  concerns remain eligible for direct support. See
+  [`emotional-ai/BIAS_AND_TONE.md`](emotional-ai/BIAS_AND_TONE.md).
 - `CORE_GOAL_HIERARCHY` is fixed. A caller may pass request-scoped weighted
   `GoalPriority` values to adjust emphasis within those constraints; model
   opinions cannot alter the hierarchy. See

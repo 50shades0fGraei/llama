@@ -26,7 +26,9 @@ autonomous account-action or customer-profiling system.
 7. **Apply the caller-selected task workflow.** Choose `general`,
    `troubleshooting`, `policy`, `recommendation`, or `opinion` explicitly. The
    workflow adds task-specific guidance; it does not infer a hidden objective.
-   `opinion` separates evidence-backed facts from judgment and uncertainty.
+   `opinion` separates evidence-backed facts from judgment and uncertainty; if
+   evidence cannot settle a values disagreement, surface the trade-off rather than
+   forcing agreement.
 8. **Assess solution and risk.** Apply fixed safeguards first; then consider
    explicit user goals, documented company requirements, and service reliability
    as parallel interests. Block stated safeguard violations and require human
@@ -39,9 +41,10 @@ autonomous account-action or customer-profiling system.
 10. **Preserve agency.** Present options and relevant trade-offs without pressure.
    Let the customer reject suggestions or change direction.
 11. **Review the draft if configured.** A separate reviewer may check task fit,
-   evidence, uncertainty, tone, and role consistency once before output. It returns
-   only a final answer; it does not change policy or develop an independent
-   ideology. See [`RESPONSE_REVIEW.md`](RESPONSE_REVIEW.md).
+   evidence, uncertainty, tone, bias, and role consistency once before output. It
+   returns only a final answer; it does not change policy or develop an independent
+   ideology. See [`RESPONSE_REVIEW.md`](RESPONSE_REVIEW.md) and
+   [`BIAS_AND_TONE.md`](BIAS_AND_TONE.md).
 12. **Confirm completion.** Claim an action only after the connected system confirms
    it. Otherwise describe the next step as a suggestion, not a completed transfer
    or transaction.
