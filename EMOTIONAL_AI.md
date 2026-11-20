@@ -52,7 +52,8 @@ Optional, separately configured persistence:
 - `select_contextual_ad` is a separate, opt-in workflow that returns a
   clearly labeled sponsored card based on the current message's general topic.
   It does not target mood or demographics or modify assistant output. See
-  [`emotional-ai/CHAT_ADS.md`](emotional-ai/CHAT_ADS.md).
+  [`emotional-ai/CHAT_ADS.md`](emotional-ai/CHAT_ADS.md) and the
+  [`Chat Ads project proposal`](emotional-ai/CHAT_ADS_PROPOSAL.md).
 
 The raw user message is not stored by the reminder or quality ledgers. These
 SQLite files are local but not encrypted by this package; use a separate memory

@@ -26,6 +26,8 @@ Python wrapper documented in [`EMOTIONAL_AI.md`](../EMOTIONAL_AI.md).
   transparent, non-manipulative de-escalation.
 - [`CHAT_ADS.md`](CHAT_ADS.md): opt-in, locally matched, clearly labelled
   sponsored suggestions, separate from assistant answers.
+- [`CHAT_ADS_PROPOSAL.md`](CHAT_ADS_PROPOSAL.md): privacy-first product, funding,
+  and pilot proposal.
 - [`RESPONSE_REVIEW.md`](RESPONSE_REVIEW.md): an optional, bounded second-pass
   quality review.
 - [`EVALUATION.md`](EVALUATION.md): metrics and a fair comparison plan.
