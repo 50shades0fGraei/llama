@@ -4,6 +4,7 @@ from emotional_ai import (
     CustomerServiceAssistant,
     assess_customer_message,
     handoff_metrics,
+    rank_user_stated_interests,
 )
 
 
@@ -84,6 +85,7 @@ class AssistantTests(unittest.TestCase):
         system_message = generator.dialogs[0][0]["content"]
         self.assertIn("Follow the store policy.", system_message)
         self.assertIn("Acknowledge the stated service problem", system_message)
+        self.assertIn("never infer or persist an interest profile", system_message)
 
     def test_requests_human_next_step_without_claiming_transfer(self):
         generator = FakeGenerator()
@@ -137,6 +139,30 @@ class MetricsTests(unittest.TestCase):
             handoff_metrics([True], [])
         with self.assertRaises(TypeError):
             handoff_metrics([1], [True])
+
+
+class InterestHierarchyTests(unittest.TestCase):
+    def test_preserves_user_supplied_order_and_normalizes_whitespace(self):
+        result = rank_user_stated_interests(
+            ["  order status ", "Returns", "billing"], consented=True
+        )
+
+        self.assertEqual(
+            [(item.interest, item.rank) for item in result],
+            [("order status", 1), ("Returns", 2), ("billing", 3)],
+        )
+
+    def test_requires_consent_and_rejects_ambiguous_values(self):
+        with self.assertRaises(PermissionError):
+            rank_user_stated_interests(["returns"], consented=False)
+        with self.assertRaises(ValueError):
+            rank_user_stated_interests(["returns", " Returns "], consented=True)
+        with self.assertRaises(ValueError):
+            rank_user_stated_interests([" "], consented=True)
+        with self.assertRaises(TypeError):
+            rank_user_stated_interests(["returns"], consented=1)
+        with self.assertRaises(TypeError):
+            rank_user_stated_interests("returns", consented=True)
 
 
 if __name__ == "__main__":

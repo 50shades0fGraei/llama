@@ -5,6 +5,9 @@ chat generator. It keeps the model's existing weights and adds system-message
 guidance based on a few explicit wording cues. It does not fine-tune model weights,
 diagnose a customer's emotional state, or perform account actions.
 
+For consent-based ranking of preferences the customer explicitly provides, see
+[`emotional-ai/INTEREST_HIERARCHY.md`](emotional-ai/INTEREST_HIERARCHY.md).
+
 ```python
 from emotional_ai import CustomerServiceAssistant
 

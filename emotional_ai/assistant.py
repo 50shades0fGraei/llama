@@ -36,7 +36,9 @@ _BASE_SERVICE_GUIDANCE = (
     "Treat the support cues below as limited signals in the wording, not as facts "
     "about the customer's inner emotional state. Do not infer or use demographic "
     "or psychological traits. Do not pressure the customer, invent policies, or "
-    "claim that you took an account action. Ask for only information needed to help."
+    "claim that you took an account action. Ask for only information needed to help. "
+    "Only when relevant, ask permission before using preferences the customer "
+    "explicitly provides; never infer or persist an interest profile."
 )
 
 

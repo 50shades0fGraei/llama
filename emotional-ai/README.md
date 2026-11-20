@@ -10,6 +10,8 @@ Python wrapper documented in [`EMOTIONAL_AI.md`](../EMOTIONAL_AI.md).
   customers say while preserving their agency.
 - [`DECISION_WORKFLOW.md`](DECISION_WORKFLOW.md): a transparent support triage
   process and limits on automated decisions.
+- [`INTEREST_HIERARCHY.md`](INTEREST_HIERARCHY.md): an opt-in way to rank
+  preferences explicitly supplied by the customer.
 - [`EVALUATION.md`](EVALUATION.md): metrics and a fair comparison plan.
 
 These are curated rewrites, not copies of the archive. They replace demographic

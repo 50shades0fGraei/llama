@@ -23,6 +23,10 @@ policy accuracy, and repeat-contact rate. Compare against a baseline using the s
 scenarios, operating conditions, and scoring rubric. Segment only where lawful,
 necessary, and consented; do not infer sensitive traits to improve a metric.
 
+For preference-based recommendations, measure whether users say the ranking was
+relevant and whether they needed to correct or clear it. A higher engagement rate
+alone is not evidence of better service.
+
 Do not claim to outperform competitors without a reproducible head-to-head
 evaluation. A metric is not a target to optimize at the expense of customer choice,
 privacy, or accurate answers.
