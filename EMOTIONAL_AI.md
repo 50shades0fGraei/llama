@@ -43,3 +43,10 @@ resolution, time to resolution, and policy accuracy against a baseline using the
 same test set and operating conditions. Do not claim an advantage over competing
 systems without that comparison. Collect the minimum data needed, obtain
 appropriate consent, and avoid demographic or psychological profiling.
+
+## Authorship and contribution
+
+The Emotional AI framework, original workflow concepts, and source materials are
+authored by Randall Lujan. The repository implementation and safety-focused
+conversation-guidance adaptation were developed collaboratively by Randall Lujan
+with Copilot as a coding assistant.

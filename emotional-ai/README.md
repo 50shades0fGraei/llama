@@ -38,3 +38,7 @@ by the caller and applies to every dialog in that call:
 
 These are four curated workflows, not a dynamic loader for the archive's 33
 documents. The archive documents are not executable modules.
+
+The framework and workflow concepts are authored by Randall Lujan; the repository
+implementation and guidance adaptation were developed with Copilot. See
+[`EMOTIONAL_AI.md`](../EMOTIONAL_AI.md) for the contribution note.
