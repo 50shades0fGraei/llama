@@ -11,18 +11,76 @@ For consent-based ranking of preferences the customer explicitly provides, see
 Assessment and support routing happen before the wrapped generator tokenizes the
 augmented dialog. An optional `response_style` (`"neutral"`, `"warm"`, or
 `"direct"`) is a caller-provided preference; it is not inferred from emotion.
-Choose `task="general"`, `"troubleshooting"`, `"policy"`, or `"recommendation"`
-explicitly when calling `CustomerServiceAssistant.chat_completion`.
+Choose `task="general"`, `"troubleshooting"`, `"policy"`, `"recommendation"`, or
+`"opinion"` explicitly when calling `CustomerServiceAssistant.chat_completion`.
+
+Optional, separately configured persistence:
+
+- `MemoryStore.from_environment()` returns no store unless
+  `EMOTIONAL_AI_MEMORY_ENABLED=1`; an application may also construct a store
+  explicitly. It stores consented reminder metadata in a profile-local SQLite
+  file, matches saved keywords against future messages, deletes resolved items,
+  and expires items after 90 days without a match. See
+  [`emotional-ai/MEMORY_RETENTION.md`](emotional-ai/MEMORY_RETENTION.md).
+- `QualityMemoryStore.from_environment()` returns no store unless
+  `EMOTIONAL_AI_QUALITY_ENABLED=1`; an application may also construct a store
+  explicitly. It stores response-quality labels without prompts or answers and
+  only adds prompt hints from repeated human-reviewed feedback. See
+  [`emotional-ai/QUALITY_MEMORY.md`](emotional-ai/QUALITY_MEMORY.md).
+- `EvidenceRetriever` is optional and receives the current user message and task
+  for each response. A remote retriever may disclose that query; use a local source
+  or obtain user consent and minimize what is sent.
+- `ModelResponseReviewer` optionally runs one separate review-model pass after a
+  draft. It checks task fit, support from supplied evidence, uncertainty, tone,
+  pressure, and consistent self-presentation, then returns only the final answer.
+  It is not a continuous background process and does not create personal beliefs
+  or ideology. See
+  [`emotional-ai/RESPONSE_REVIEW.md`](emotional-ai/RESPONSE_REVIEW.md).
+- `CORE_GOAL_HIERARCHY` is fixed. A caller may pass request-scoped weighted
+  `GoalPriority` values to adjust emphasis within those constraints; model
+  opinions cannot alter the hierarchy. See
+  [`emotional-ai/GOAL_HIERARCHY.md`](emotional-ai/GOAL_HIERARCHY.md).
+- `assess_solution_options` scores explicit user, company, and service alignment
+  equally after hard safeguards. It blocks declared safeguard violations and
+  routes high/critical risk options to human review; it never executes an action.
+  See [`emotional-ai/SOLUTION_PROTOCOL.md`](emotional-ai/SOLUTION_PROTOCOL.md).
+
+The raw user message is not stored by the reminder or quality ledgers. These
+SQLite files are local but not encrypted by this package; use a separate memory
+path for each user profile.
 
 ```python
-from emotional_ai import CustomerServiceAssistant
+from emotional_ai import (
+    CustomerServiceAssistant,
+    GoalPriority,
+    MemoryStore,
+    ModelResponseReviewer,
+    QualityMemoryStore,
+)
 
-support = CustomerServiceAssistant(generator)  # an existing Llama instance
+support = CustomerServiceAssistant(
+    generator,  # an existing Llama instance
+    memory_store=MemoryStore.from_environment(),
+    quality_store=QualityMemoryStore.from_environment(),
+    reviewer=ModelResponseReviewer(review_model),  # optional separate model
+)
 reply = support.chat_completion(
-    [[{"role": "user", "content": "I need to speak with a person."}]],
-    task="general",
+    [[{"role": "user", "content": "Compare these options."}]],
+    task="opinion",
+    goal_priorities=[
+        GoalPriority("include alternatives", 80, "user_explicit"),
+        GoalPriority("be concise", 40, "task"),
+    ],
 )
 ```
+
+To enable evidence search, pass an app-specific implementation of
+`EvidenceRetriever`; its `search` method receives the current user message and
+task. See [`emotional-ai/EVIDENCE_RETRIEVAL.md`](emotional-ai/EVIDENCE_RETRIEVAL.md).
+
+Use `assess_solution_options` for structured option and risk review; its
+stakeholder ratings must come from explicit goals and documented requirements,
+not inferred demographic or psychological traits.
 
 `assess_customer_message` returns transparent cues for explicitly reported
 frustration, service-problem wording, requests for human support, and urgency-related
